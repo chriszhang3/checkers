@@ -1,7 +1,7 @@
 from tkinter import *
 from Board import *
 
-class UI(Frame):
+class UI(Frame): # Need to figure out what Frame is
     window_size = 640
     cell_size = int(window_size/8)
     color_table = ["black","white"]
@@ -11,6 +11,7 @@ class UI(Frame):
         self.canvas = Canvas(self, bg="white", height=self.window_size, width=self.window_size)
         self.blank_board()
 
+    # Make a blank board
     def blank_board(self):
         self.master.title("checkers")
         self.pack(fill=BOTH, expand=1)
@@ -26,6 +27,7 @@ class UI(Frame):
                         outline="black",
                         fill="gray")
 
+    # Removes a piece at the cell specified
     def remove_piece(self,y,x):
         unit = self.cell_size
         if (y+x)%2==0:
@@ -40,6 +42,7 @@ class UI(Frame):
             outline="black",
             fill=color)
 
+    # Highlights the cell specified
     def highlight(self, y, x, color):
         # print("called highlight",y,x)
 
@@ -52,6 +55,7 @@ class UI(Frame):
             outline = "black",
             fill=color)
 
+    # Places the specified piece on the cell specified
     def place_piece(self,piece):
         unit = self.cell_size
         y = piece.y
@@ -81,26 +85,9 @@ class UI(Frame):
     def get_canvas(self):
         return self.canvas
 
-
 def main():
-
-    root = Tk()
-    window_size = UI.window_size
-    root.geometry(str(window_size)+'x'+str(window_size))
-    board = Board()
-    ui = board.ui
-    canvas =ui.get_canvas()
-    canvas.pack()
-
-    canvas.bind('<Button-1>', board.onclick)
-
-    root.mainloop()
-
-
-
-
-
-
+    print("Execute main.py to play.")
+    return
 
 if __name__ == '__main__':
     main()

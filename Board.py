@@ -144,6 +144,7 @@ class Board:
         for piece in self.pieces[color]:
             self.possible_moves(piece)
 
+    # Highlights all the possible moves a piece can make.
     def highlight_moves(self,piece):
         if piece == None:
             return []
@@ -192,6 +193,7 @@ class Board:
         else:
             return False
 
+    # Checks where the current play is able to eat any pieces.
     def can_eat(self):
         output = False
         for piece in self.pieces[self.turn]:
@@ -256,7 +258,8 @@ class Board:
         else:
             self.continuation = False
             self.turn = (self.turn+1)%2
-
+            
+    # What happens when you click on the board
     def onclick(self,event):
         x = int(event.x/UI.cell_size)
         y = int(event.y/UI.cell_size)
@@ -309,52 +312,9 @@ class Board:
                 self.can_move = False
                 return
 
-    # def __str__(self):
-    #     output = ""
-    #     for i in range(8):
-    #         for j in range(8):
-    #             cell = self.board[i][j]
-    #             if cell == None:
-    #                 output = output+". "
-    #             else:
-    #                 if cell.color == "black" and cell.king == False:
-    #                     piece = "b"
-    #                 elif cell.color == "black" and cell.king == True:
-    #                     piece = "B"
-    #                 elif cell.color == "white" and cell.king == False:
-    #                     piece = "w"
-    #                 elif cell.color == "white" and cell.king == True:
-    #                     piece = "W"
-    #                 output = output + piece + " "
-    #         output = output + "\n"
-    #     return output
-
 def main():
-    list1 = []
-    list2 = []
-    list = [list1,list2]
-    list1.append(Piece(0,False,1,2))
-    print(*list)
-
-
-    # board = Board()
-    # board.new_game()
-    # print(board)
-    #
-    # while(True):
-    #     # 0 is black, 1 is white
-    #     print("Turn of "+str(board.turn))
-    #     print("y coordinate of piece:")
-    #     y = int(input())
-    #     print("x coordinate of piece:")
-    #     x = int(input())
-    #     print("Where to move piece:")
-    #     where = int(input())
-    #     board.move(y,x,where)
-    #     print(board)
-
-
-
+    print("Execsute main.py to play.")
+    return
 
 if __name__ == "__main__":
     main()
