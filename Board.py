@@ -238,7 +238,7 @@ class Board:
         self.board[y_new][x_new] = piece
         self.ui.place_piece(piece)
         self.remove_piece(y,x)
-        self.turn = (self.turn+1)%2
+
         return eaten
 
     # Check if the piece can continue to eat.
@@ -255,6 +255,7 @@ class Board:
             return
         else:
             self.continuation = False
+            self.turn = (self.turn+1)%2
 
     def onclick(self,event):
         x = int(event.x/UI.cell_size)
@@ -287,7 +288,7 @@ class Board:
                     return
 
             # If we are in a highlighted state, you can click where you want your piece to go.
-            if self.can_move == True:
+            else:
                 self.erase_highlighting()
 
                 for move in self.available_moves:
@@ -303,6 +304,7 @@ class Board:
                                 print("If you can eat a piece this turn, you must.")
                         else:
                             self.move_piece(move)
+                            self.turn = (self.turn+1)%2
 
                 self.can_move = False
                 return
