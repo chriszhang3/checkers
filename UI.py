@@ -40,11 +40,10 @@ class UI(Frame):
             outline="black",
             fill=color)
 
-    def highlight(self, y, x):
+    def highlight(self, y, x, color):
         # print("called highlight",y,x)
 
         unit = self.cell_size
-        color = "yellow"
         self.canvas.create_rectangle(
             unit*x,
             unit*y,
@@ -53,8 +52,12 @@ class UI(Frame):
             outline = "black",
             fill=color)
 
-    def place_piece(self,y,x,color,king):
+    def place_piece(self,piece):
         unit = self.cell_size
+        y = piece.y
+        x = piece.x
+        color = piece.color
+        king = piece.king
 
         fill_color = UI.color_table[color]
 
