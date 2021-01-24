@@ -1,7 +1,7 @@
 from tkinter import *
 from Board import *
 
-class UI(Frame): # Need to figure out what Frame is
+class UI(Frame): 
     window_size = 608
     cell_size = int(window_size/8)
     color_table = ["black","white"]
@@ -73,12 +73,13 @@ class UI(Frame): # Need to figure out what Frame is
             outline="black",
             fill=fill_color)
 
+        # Looks better with everything +1.
         if king == True:
             self.canvas.create_oval(
-                unit*x+unit/4,
-                unit*y+unit/4,
-                unit*x+unit*3/4,
-                unit*y+unit*3/4,
+                unit*x+unit/4+1,
+                unit*y+unit/4+1,
+                unit*x+unit*3/4+1,
+                unit*y+unit*3/4+1,
                 outline="gray",
                 width=2)
 
@@ -89,19 +90,16 @@ def main():
     print("Execute main.py to play.")
 
     root = Tk()
-    root.geometry('250x150')
+    board_size = UI.window_size
+    cell_size = int(board_size/8)
+    window_size = board_size+cell_size
 
-    button1 = Button(text="Left")
-    button1.pack(side = LEFT)
+    root.geometry(str(window_size)+'x'+str(window_size))
 
-    button2 = Button(text="Top")
-    button2.pack(side = TOP)
-
-    button3 = Button(text="Right")
-    button3.pack(side = RIGHT)
-
-    button4 = Button(text="Bottom")
-    button4.pack(side = BOTTOM)
+    ui = UI()
+    canvas =ui.get_canvas()
+    ui.place_piece(Piece(0,True,0,0))
+    canvas.pack()
 
     root.mainloop()
     return

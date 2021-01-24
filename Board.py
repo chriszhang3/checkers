@@ -1,9 +1,9 @@
 from UI import *
 
 class Piece:
+    # color is an integer. 0 is black and 1 is white
     def __init__(self, color, king, y, x):
 
-        # color is an integer. 0 is black and 1 is white
         self.color = color
         self.king = king
         self.y = y
@@ -258,7 +258,7 @@ class Board:
         else:
             self.continuation = False
             self.turn = (self.turn+1)%2
-            
+
     # What happens when you click on the board
     def onclick(self,event):
         x = int(event.x/UI.cell_size)

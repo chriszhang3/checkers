@@ -36,7 +36,7 @@ def main():
              #bg = "dark green",
              font = "Helvetica %d"%int(cell_size/2))
         label.pack()
-        label.place(x = board_size+26, y = 14+number*cell_size)
+        label.place(x = board_size+27, y = 14+number*cell_size)
 
 
     root.mainloop()
