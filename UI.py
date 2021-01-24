@@ -2,7 +2,7 @@ from tkinter import *
 from Board import *
 
 class UI(Frame): # Need to figure out what Frame is
-    window_size = 640
+    window_size = 608
     cell_size = int(window_size/8)
     color_table = ["black","white"]
 
@@ -87,6 +87,23 @@ class UI(Frame): # Need to figure out what Frame is
 
 def main():
     print("Execute main.py to play.")
+
+    root = Tk()
+    root.geometry('250x150')
+
+    button1 = Button(text="Left")
+    button1.pack(side = LEFT)
+
+    button2 = Button(text="Top")
+    button2.pack(side = TOP)
+
+    button3 = Button(text="Right")
+    button3.pack(side = RIGHT)
+
+    button4 = Button(text="Bottom")
+    button4.pack(side = BOTTOM)
+
+    root.mainloop()
     return
 
 if __name__ == '__main__':
