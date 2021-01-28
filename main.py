@@ -1,6 +1,7 @@
 from tkinter import *
 from Board import *
 from UI import *
+from Computer import *
 
 def main():
 
@@ -13,12 +14,13 @@ def main():
     root.geometry(str(window_size)+'x'+str(window_size))
 
     board = Board()
+    computer = Computer(board,1)
     ui = board.ui
     canvas =ui.get_canvas()
     canvas.pack()
     canvas.place(x=0,y=0)
-    canvas.bind('<Button-1>', board.onclick)
-
+    canvas.bind('<Button-1>',
+        lambda event, b=board, c= computer: UI.onclick_human(event,b))
 
     for i in range(8):
         label = Label(root,

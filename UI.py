@@ -1,7 +1,7 @@
 from tkinter import *
 from Board import *
 
-class UI(Frame): 
+class UI(Frame):
     window_size = 608
     cell_size = int(window_size/8)
     color_table = ["black","white"]
@@ -86,15 +86,38 @@ class UI(Frame):
     def get_canvas(self):
         return self.canvas
 
+    @staticmethod
+    def start_tk():
+        root = Tk()
+        board_size = UI.window_size
+        cell_size = int(board_size/8)
+        window_size = board_size+cell_size
+        root.geometry(str(window_size)+'x'+str(window_size))
+        return root
+
+    @staticmethod
+    def onclick_human(event,board):
+
+        x = int(event.x/UI.cell_size)
+        y = int(event.y/UI.cell_size)
+        board.human_turn(y,x)
+
+    @staticmethod
+    def onclick_computer(event,board,computer):
+
+        x = int(event.x/UI.cell_size)
+        y = int(event.y/UI.cell_size)
+
+        if board.turn == 0:
+            board.human_turn(y,x)
+        else:
+            computer.turn()
+            board.increment_turn()
+
 def main():
     print("Execute main.py to play.")
 
-    root = Tk()
-    board_size = UI.window_size
-    cell_size = int(board_size/8)
-    window_size = board_size+cell_size
-
-    root.geometry(str(window_size)+'x'+str(window_size))
+    root = UI.start_tk()
 
     ui = UI()
     canvas =ui.get_canvas()
