@@ -79,7 +79,9 @@ class Board:
         # The game starts with player 0's turn.
         self.turn = 0
 
-        self.can_move = False # You must click on a piece for this to become True.
+        # If can_move is False, clicking on a piece will show its possible moves.
+        # If can_move is True, clicking on a highlighted square will move the piece.
+        self.can_move = False
         self.continuation = False # True if you are in the middle of a multi-jump.
 
         self.new_game()
@@ -277,28 +279,16 @@ class Board:
 
         return piece
 
-    def update_continuation_moves(self, piece):
+    def update_continuation_moves(self, piece, highlight = False):
         self.possible_moves(piece)
         self.available_moves = []
         for move in piece.moves:
             if move.eat:
                 self.available_moves.append(move)
-
-    # Check if the piece can continue to eat.
-    def after_eat(self, piece):
-        moves = self.possible_moves(piece)
-        continuation_moves = []
-        for move in moves:
-            if move.eat == True:
-                continuation_moves.append(move)
                 self.ui.highlight(move.yend,move.xend, "red")
-        if continuation_moves:
-            self.continuation = True
-            self.available_moves = continuation_moves
-            return
-        else:
+        if not self.available_moves:
             self.continuation = False
-            self.turn = (self.turn+1)%2
+            self.increment_turn()
 
     # What happens when you click on the board
     def human_turn(self,y,x):
@@ -307,8 +297,8 @@ class Board:
             for move in self.available_moves:
                 if x == move.xend and y == move.yend:
                     self.erase_highlighting()
-                    self.move_piece(move)
-                    self.after_eat(self.board[y][x])
+                    piece = self.move_piece(move)
+                    self.update_continuation_moves(piece, highlight = True)
 
         else:
 
@@ -337,16 +327,14 @@ class Board:
                     if x == move.xend and y == move.yend:
                         if self.can_eat:
                             if move.eat == True:
-                                eaten = self.move_piece(move)
-                                if eaten != None:
-                                    piece = self.board[y][x]
-                                    self.after_eat(piece)
+                                piece = self.move_piece(move)
+                                self.update_continuation_moves(piece, highlight = True)
 
                             else:
                                 print("If you can eat a piece this turn, you must.")
                         else:
                             self.move_piece(move)
-                            self.turn = (self.turn+1)%2
+                            self.increment_turn()
 
                 self.can_move = False
                 return

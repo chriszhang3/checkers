@@ -33,8 +33,6 @@ class Computer:
             self.board.update_continuation_moves(piece)
             if self.board.available_moves:
                 self.move()
-            else:
-                self.board.continuation = False
         return
 
 def main():

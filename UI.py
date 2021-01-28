@@ -112,7 +112,6 @@ class UI(Frame):
             board.human_turn(y,x)
         else:
             computer.turn()
-            board.increment_turn()
 
 def main():
     print("Execute main.py to play.")
