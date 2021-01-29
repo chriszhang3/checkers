@@ -82,30 +82,28 @@ class Computer:
             print("You win")
         return move
 
-    def move(self,ui,move=None):
+    def single_move(self,ui,move=None):
         if move == None:
-            self.board.update_moves()
-            self.moves = self.board.available_moves
+            self.moves = self.board.all_possible_moves()
             move = self.random_move()
         if move == None:
             return
         piece = self.board.move_piece(move,ui)
         return (piece, move)
 
-    def turn(self,ui, move = None, log = False):
-        move_output = move(ui,move)
+    def turn(self,ui, log = False):
+        move_output = self.single_move(ui)
         if move_output == None:
             return
         (piece, move) = move_output
         if log:
             print("Computer's move: ", move)
         while self.board.continuation:
-            self.board.update_continuation_moves(piece)
-            self.moves = self.board.available_moves
+            self.moves = self.board.update_continuation_moves(piece)
             if self.moves:
-                (piece,move) = self.move(ui)
+                (piece,move) = self.single_move(ui)
                 if log:
-                    print("Computer's move: ", move)
+                    print("Computer's continuation move: ", move)
         self.board.increment_turn()
         if log:
             print("==========")

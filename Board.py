@@ -260,16 +260,20 @@ class Board:
 
         return piece
 
+    # A continuation move is when a piece eats two or more pieces in a row.
     def update_continuation_moves(self, piece, ui = None):
+        moves=[]
         self.possible_moves(piece)
         self.can_eat = False
         for move in piece.moves:
             if move.eat:
                 self.can_eat = True
+                moves.append(move)
                 if ui != None:
                     ui.highlight(move.yend,move.xend, "red")
         if not self.can_eat:
             self.continuation = False
+        return moves
 
     # What happens when you click on the board
     def human_turn(self,y,x, ui):
