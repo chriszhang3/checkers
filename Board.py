@@ -57,8 +57,6 @@ class Move:
         print("}")
         return
 
-# If double jumping, don't need to click again
-
 class Board:
     def __init__(self):
         self.board = []
@@ -70,8 +68,8 @@ class Board:
         for j in range(8):
             self.board.append(row.copy())
 
-        self.available_moves = [] # Moves to be displayed.
         self.can_eat = False
+        self.clicked_piece = None
 
         # self.pieces[0] are the pieces of player 0
         self.pieces = [[],[]]
@@ -79,13 +77,9 @@ class Board:
         # The game starts with player 0's turn.
         self.turn = 0
 
-        # If can_move is False, clicking on a piece will show its possible moves.
-        # If can_move is True, clicking on a highlighted square will move the piece.
-        self.can_move = False
         self.continuation = False # True if you are in the middle of a multi-jump.
 
         self.new_game()
-
 
     def new_game(self):
         for i in range(8):
@@ -108,7 +102,7 @@ class Board:
     def possible_moves(self,piece):
 
         if piece == None:
-            return
+            return []
 
         else:
             y = piece.y
@@ -145,46 +139,38 @@ class Board:
 
                         move = Move(y,x,y_change,x_change,True)
                         piece.moves.append(move)
-                        self.available_moves.append(move)
                         self.can_eat = True
 
                     # Final case is when the neighboring square is empty
                     else:
                         move = Move(y,x,y_change,x_change,False)
-                        self.available_moves.append(move)
                         piece.moves.append(move)
             return piece.moves
 
-    # Updates all moves of the player with designated color
-    def update_moves(self):
+    # Updates all moves of the player and returns them
+    def all_possible_moves(self):
+        all_possible = []
         self.can_eat = False
-        self.available_moves = []
         for piece in self.pieces[self.turn]:
-            self.possible_moves(piece)
+            all_possible.extend(self.possible_moves(piece))
 
         if self.can_eat:
-            old_moves = self.available_moves.copy()
-            #print("Movelist before remove: ", *self.available_moves, sep='\n')
+            old_moves = all_possible.copy()
             for move in old_moves:
-                #print("This is the move:", move)
                 if move.eat == False:
-                    #print("We shall remove it")
-                    self.available_moves.remove(move)
+                    all_possible.remove(move)
+        return all_possible
 
-    # Highlights all the possible moves a piece can make.
-    def highlight_moves(self,piece,ui):
-        if piece == None:
-            return []
-
-        for move in piece.moves:
-            if move.eat == True:
-                color = "red"
-            else:
-                color = "yellow"
-            ui.highlight(move.yend,move.xend, color)
-
-        self.can_move = True
-        return piece.moves
+    # Highlights the given move.
+    def highlight_moves(self,moves,ui):
+        for move in moves:
+            if move != None:
+                if move.eat:
+                    color = "red"
+                else:
+                    color = "yellow"
+                ui.highlight(move.yend,move.xend, color)
+        return
 
     def erase_highlighting(self, ui):
         for i in range(8):
@@ -276,31 +262,33 @@ class Board:
 
     def update_continuation_moves(self, piece, ui = None):
         self.possible_moves(piece)
-        self.available_moves = []
+        self.can_eat = False
         for move in piece.moves:
             if move.eat:
-                self.available_moves.append(move)
+                self.can_eat = True
                 if ui != None:
                     ui.highlight(move.yend,move.xend, "red")
-        if not self.available_moves:
+        if not self.can_eat:
             self.continuation = False
 
     # What happens when you click on the board
     def human_turn(self,y,x, ui):
 
         if self.continuation:
-            for move in self.available_moves:
+            piece = self.clicked_piece
+            self.possible_moves(piece)
+            for move in piece.moves:
                 if x == move.xend and y == move.yend:
                     self.erase_highlighting(ui)
                     piece = self.move_piece(move,ui)
                     self.update_continuation_moves(piece, ui=ui)
                     if self.continuation == False:
                         self.increment_turn()
+                        self.clicked_piece = None
 
         else:
-
             # Click a piece to hightlight its possible moves
-            if self.can_move == False:
+            if self.clicked_piece == None:
                 piece = self.board[y][x]
                 if piece == None:
                     return
@@ -308,19 +296,18 @@ class Board:
                     print("It is the turn of: %s" % UI.color_table[self.turn])
                     return
                 else:
-                    self.update_moves()
-                    self.available_moves = self.highlight_moves(piece,ui)
-
-                    # If there are not moves available, return to unhighlighted state.
-                    if not self.available_moves:
-                        self.can_move = False
+                    self.all_possible_moves()
+                    self.clicked_piece = piece
+                    moves = piece.moves
+                    self.highlight_moves(moves,ui)
                     return
 
             # If we are in a highlighted state, you can click where you want your piece to go.
             else:
                 self.erase_highlighting(ui)
 
-                for move in self.available_moves:
+                moves = self.clicked_piece.moves
+                for move in moves:
                     if x == move.xend and y == move.yend:
                         if self.can_eat:
                             if move.eat == True:
@@ -329,13 +316,17 @@ class Board:
                                 if self.continuation == False:
                                     self.increment_turn()
 
+                                # If you land here, self.clicked_piece is not reset
+                                else:
+                                    return
+
                             else:
                                 print("If you can eat a piece this turn, you must.")
+
                         else:
                             self.move_piece(move,ui)
                             self.increment_turn()
-
-                self.can_move = False
+                self.clicked_piece = None
                 return
 
 

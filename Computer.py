@@ -32,7 +32,7 @@ class Computer:
                 total -= piece_value
         return total
 
-    def random_move(self,ui):
+    def random_move(self):
         moves = self.moves
         if not moves:
             print("You win.")
@@ -41,66 +41,75 @@ class Computer:
             leng = len(moves)
             n = random.randrange(leng)
             move = moves[n]
-            piece = self.board.move_piece(move,ui)
-            return (piece,move)
+            return move
 
     def search_max(self,depth):
         max = -self.max_value
         if depth == 0:
             return self.value()
+        self.board.update_moves()
         moves = self.board.available_moves
         if not moves:
             return (max, None)
         for move in moves:
             case = copy.deepcopy(self)
             case.color = opposite(case.color)
+            case.move_piece(move)
             min = self.search_min(case,depth)
             if max > min:
                 max = min
                 best_move = move
-        return (max, move)
+        return (max, best_move)
 
     def search_min(self,depth):
         min = self.max_value
+        self.board.update_moves()
         moves = self.board.available_moves
         if not moves:
             return min
         for move in moves:
             case = copy.deepcopy(self)
             case.color = opposite(case.color)
-            (max, move) = self.search_max(case,depth-1)
+            case.move_piece(move)
+            max = self.search_max(case,depth-1)[0]
             if min < max:
                 min = max
         return min
 
     def search_move(self,ui):
-        (max,move) = self.search_max(3)
+        (max,move) = self.search_max(10)
+        if move == None:
+            print("You win")
         return move
 
-
-    def move(self,ui):
-        move_output = self.random_move(ui)
-        if move_output == None:
+    def move(self,ui,move=None):
+        if move == None:
+            self.board.update_moves()
+            self.moves = self.board.available_moves
+            move = self.random_move()
+        if move == None:
             return
-        (piece, move) = move_output
-        print("Computer's move: ", move)
+        piece = self.board.move_piece(move,ui)
         return (piece, move)
 
-    def turn(self,ui):
-        self.board.update_moves()
-        self.moves = self.board.available_moves
-        move_output = self.move(ui)
+    def turn(self,ui, move = None, log = False):
+        move_output = move(ui,move)
         if move_output == None:
             return
         (piece, move) = move_output
+        if log:
+            print("Computer's move: ", move)
         while self.board.continuation:
             self.board.update_continuation_moves(piece)
             self.moves = self.board.available_moves
             if self.moves:
                 (piece,move) = self.move(ui)
+                if log:
+                    print("Computer's move: ", move)
         self.board.increment_turn()
-        print("==========")
-        print()
+        if log:
+            print("==========")
+            print()
         return
 
 def main():

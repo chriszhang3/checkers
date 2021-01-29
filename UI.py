@@ -121,7 +121,7 @@ class UI(Frame):
         if board.turn == 0:
             board.human_turn(y,x,ui)
         else:
-            computer.turn(ui)
+            computer.turn(ui,log = True)
 
 
 def main():
