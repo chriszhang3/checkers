@@ -12,30 +12,33 @@ class Computer:
         moves = self.moves
         if not moves:
             print("You win.")
+            return
         else:
             leng = len(moves)
             # print("length =", leng)
             n = random.randrange(leng)
-            piece = self.board.move_piece(moves[n])
-            return piece
+            move = moves[n]
+            piece = self.board.move_piece(move)
+            return (piece,move)
 
     def search_max(self,depth):
 
         return
 
     def move(self):
-        piece = self.random_move()
-        return piece
+        return self.random_move()
 
     def turn(self):
         self.board.update_moves()
         self.moves = self.board.available_moves
-        piece = self.move()
+        if self.move() == None:
+            return
+        (piece, move) = self.move()
         while self.board.continuation:
             self.board.update_continuation_moves(piece)
             self.moves = self.board.available_moves
             if self.moves:
-                self.move()
+                (piece,move) = self.move()
         self.board.increment_turn()
         return
 
