@@ -285,10 +285,11 @@ class Board:
         for move in piece.moves:
             if move.eat:
                 self.available_moves.append(move)
-                self.ui.highlight(move.yend,move.xend, "red")
+                if highlight:
+                    self.ui.highlight(move.yend,move.xend, "red")
         if not self.available_moves:
             self.continuation = False
-            self.increment_turn()
+
 
     # What happens when you click on the board
     def human_turn(self,y,x):
@@ -299,6 +300,8 @@ class Board:
                     self.erase_highlighting()
                     piece = self.move_piece(move)
                     self.update_continuation_moves(piece, highlight = True)
+                    if self.continuation == False:
+                        self.increment_turn()
 
         else:
 
@@ -329,6 +332,8 @@ class Board:
                             if move.eat == True:
                                 piece = self.move_piece(move)
                                 self.update_continuation_moves(piece, highlight = True)
+                                if self.continuation == False:
+                                    self.increment_turn()
 
                             else:
                                 print("If you can eat a piece this turn, you must.")

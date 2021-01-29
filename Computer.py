@@ -4,12 +4,12 @@ from tkinter import *
 
 class Computer:
 
-    def __init__(self,board, color):
+    def __init__(self,board):
         self.board = board
-        self.color = color
+        self.moves = []
 
     def random_move(self):
-        moves = self.board.available_moves
+        moves = self.moves
         if not moves:
             print("You win.")
         else:
@@ -19,7 +19,8 @@ class Computer:
             piece = self.board.move_piece(moves[n])
             return piece
 
-    def search(self,depth):
+    def search_max(self,depth):
+
         return
 
     def move(self):
@@ -28,11 +29,14 @@ class Computer:
 
     def turn(self):
         self.board.update_moves()
+        self.moves = self.board.available_moves
         piece = self.move()
         while self.board.continuation:
             self.board.update_continuation_moves(piece)
-            if self.board.available_moves:
+            self.moves = self.board.available_moves
+            if self.moves:
                 self.move()
+        self.board.increment_turn()
         return
 
 def main():
@@ -40,7 +44,7 @@ def main():
 
     root = UI.start_tk()
     board = Board()
-    computer = Computer(board,1)
+    computer = Computer(board)
     ui = board.ui
     canvas =ui.get_canvas()
     canvas.pack()
