@@ -96,32 +96,46 @@ class UI(Frame):
         return root
 
     @staticmethod
-    def onclick_human(event,board):
+    def make_ui(board):
+        ui = UI()
+        for i in range(8):
+            for j in range(8):
+                piece = board.board[i][j]
+                if piece != None:
+                    ui.place_piece(piece)
+        return ui
+
+    @staticmethod
+    def onclick_human(event, board, ui):
 
         x = int(event.x/UI.cell_size)
         y = int(event.y/UI.cell_size)
-        board.human_turn(y,x)
+        board.human_turn(y, x, ui)
 
     @staticmethod
-    def onclick_computer(event,board,computer):
+    def onclick_computer(event,board,computer,ui):
 
         x = int(event.x/UI.cell_size)
         y = int(event.y/UI.cell_size)
 
         if board.turn == 0:
-            board.human_turn(y,x)
+            board.human_turn(y,x,ui)
         else:
-            computer.turn()
+            computer.turn(ui)
+
 
 def main():
     print("Execute main.py to play.")
 
     root = UI.start_tk()
-
-    ui = UI()
+    board = Board()
+    computer = Computer(board,1)
+    ui = UI.make_ui()
     canvas =ui.get_canvas()
-    ui.place_piece(Piece(0,True,0,0))
     canvas.pack()
+
+    canvas.bind('<Button-1>',
+        lambda event, b=board, c=computer, u=ui: UI.onclick_computer(event,b,c,u))
 
     root.mainloop()
     return

@@ -15,12 +15,12 @@ def main():
 
     board = Board()
     computer = Computer(board,1)
-    ui = board.ui
+    ui = UI.make_ui(board)
     canvas =ui.get_canvas()
     canvas.pack()
     canvas.place(x=0,y=0)
     canvas.bind('<Button-1>',
-        lambda event, b=board, c= computer: UI.onclick_human(event,b))
+        lambda event, b=board, u = ui: UI.onclick_human(event,b,u))
 
     for i in range(8):
         label = Label(root,
