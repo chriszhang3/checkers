@@ -27,7 +27,7 @@ class Piece:
             name = "Piece"
         return name+" of color \'%s\' in square (%d,%d)" % (UI.color_table[self.color],self.y,self.x)
 
-class Move:
+class Move: # change a move to the old move
     def __init__(self, ystart, xstart, ychange, xchange, eat):
         self.ystart= ystart
         self.xstart= xstart
@@ -37,11 +37,11 @@ class Move:
         # self.eat is a boolean telling whether this move is an eating move
         self.eat = eat
         if eat == False:
-            self.yend = ystart + ychange
-            self.xend = xstart + xchange
+            self.yend = self.ystart + ychange
+            self.xend = self.xstart + xchange
         else:
-            self.yend = ystart + 2*ychange
-            self.xend = xstart + 2*xchange
+            self.yend = self.ystart + 2*ychange
+            self.xend = self.xstart + 2*xchange
 
     def __str__(self):
         return "Move from (%d,%d) to (%d,%d)." % (self.ystart,
@@ -56,6 +56,44 @@ class Move:
             print(move)
         print("}")
         return
+
+class Turn:
+    def __init__(self, move = None):
+        if move == None:
+            self.moves = []
+        else:
+            self.moves = [move]
+
+    def append(self, move):
+        self.moves.append(move)
+
+    def insert(self, move):
+        self.moves.insert(0,move)
+
+    def extend(self, turn):
+        self.moves.extend(turn.moves)
+
+    def get_last_move(self):
+        if not self.moves:
+            return None
+        return self.moves[-1]
+
+    def execute(self,board,ui=None, log = False):
+        for move in self.moves:
+            board.move_piece(move,ui)
+            if log:
+                print(move)
+        board.continuation = False
+
+    def is_empty(self):
+        return self.moves==[]
+
+    def __str__(self):
+        output = "{\n"
+        for move in self.moves:
+            output = output + str(move) +",\n"
+        output = output + "}\n"
+        return output
 
 class Board:
     def __init__(self):
@@ -161,6 +199,66 @@ class Board:
                     all_possible.remove(move)
         return all_possible
 
+    # A continuation move is when a piece eats two or more pieces in a row.
+    # Returns a list of all possible continuation moves. Updates the value
+    # of self.continuation
+
+    def update_continuation_moves(self, piece, ui = None):
+
+        move_list=[]
+        self.possible_moves(piece)
+        self.can_eat = False
+        for move in piece.moves:
+            if move.eat:
+                self.can_eat = True
+                move_list.append(move)
+                if ui != None:
+                    ui.highlight(move.yend,move.xend, "red")
+        if not self.can_eat:
+            self.continuation = False
+        return move_list
+
+    # Returns a list of turns of all possible continuations of a given turn.
+    def all_continuation_seq(self, turn):
+        turn_list = []
+        last_move = turn.get_last_move()
+        piece = self.board[last_move.yend][last_move.xend]
+        # print(self)
+        # print("Last move:", last_move)
+
+        # All the moves in move_list should be eating moves
+        move_list = self.update_continuation_moves(piece)
+
+        if not move_list:
+            turn_list.append(turn)
+        else:
+            for move in move_list:
+                next_turn = copy.deepcopy(turn)
+                next_turn.append(move)
+                board = copy.deepcopy(self)
+                board.move_piece(move)
+                possible_turns = board.all_continuation_seq(next_turn)
+                turn_list.extend(possible_turns)
+        return turn_list
+
+    def all_possible_turns(self):
+        # print("Called all_possible_turns")
+        turn_list = []
+        moves = self.all_possible_moves()
+        for move in moves:
+            next_turn = Turn(move)
+            if not move.eat:
+                # print("Loc 3")
+                turn_list.append(next_turn)
+            else:
+                next_move = copy.deepcopy(move)
+                board = copy.deepcopy(self)
+                board.move_piece(next_move)
+                turn_list.extend(board.all_continuation_seq(next_turn))
+        # print(*turn_list,sep="\n")
+        # print("All possible turns exits")
+        return turn_list
+
     # Highlights the given move.
     def highlight_moves(self,moves,ui):
         for move in moves:
@@ -210,6 +308,9 @@ class Board:
 
     def increment_turn(self):
         self.turn = (self.turn+1)%2
+        # self.continuation = False
+        # print("==========")
+        # print()
         return
 
     ### Methods that change the board state
@@ -223,6 +324,10 @@ class Board:
     # Performs the move called move. Returns the piece that moved.
     def move_piece(self, move, ui = None):
         # print("Called move piece.")
+
+        if move == None:
+            print("Can't execute the move None.")
+            return
 
         y = move.ystart
         x = move.xstart
@@ -252,6 +357,9 @@ class Board:
         piece.y = y_new
         piece.x = x_new
         self.board[y_new][x_new] = piece
+
+        # print(piece)
+
         if ui != None:
             ui.place_piece(piece)
             self.remove_piece(y,x,ui=ui)
@@ -260,24 +368,10 @@ class Board:
 
         return piece
 
-    # A continuation move is when a piece eats two or more pieces in a row.
-    def update_continuation_moves(self, piece, ui = None):
-        moves=[]
-        self.possible_moves(piece)
-        self.can_eat = False
-        for move in piece.moves:
-            if move.eat:
-                self.can_eat = True
-                moves.append(move)
-                if ui != None:
-                    ui.highlight(move.yend,move.xend, "red")
-        if not self.can_eat:
-            self.continuation = False
-        return moves
-
     # What happens when you click on the board
     def human_turn(self,y,x, ui):
 
+        # The case when you are in a continuation sequence
         if self.continuation:
             piece = self.clicked_piece
             self.possible_moves(piece)
@@ -291,7 +385,10 @@ class Board:
                         self.clicked_piece = None
 
         else:
+
             # Click a piece to hightlight its possible moves
+            # self.all_possible_turns()
+            # print(self.continuation)
             if self.clicked_piece == None:
                 piece = self.board[y][x]
                 if piece == None:
@@ -300,16 +397,19 @@ class Board:
                     print("It is the turn of: %s" % UI.color_table[self.turn])
                     return
                 else:
+                    # print("Loc 2")
                     self.all_possible_moves()
                     self.clicked_piece = piece
+                    # print(piece)
                     moves = piece.moves
+                    # print(*moves)
                     self.highlight_moves(moves,ui)
                     return
 
             # If we are in a highlighted state, you can click where you want your piece to go.
             else:
                 self.erase_highlighting(ui)
-
+                # print("Loc 1")
                 moves = self.clicked_piece.moves
                 for move in moves:
                     if x == move.xend and y == move.yend:
@@ -333,10 +433,29 @@ class Board:
                 self.clicked_piece = None
                 return
 
-
+    def __str__(self):
+        output = ""
+        for i in range(8):
+            for j in range(8):
+                piece = self.board[i][j]
+                if piece == None:
+                    output = output + ". "
+                elif piece.king == True:
+                    if piece.color == 0:
+                        output = output+"B "
+                    else:
+                        output = output+"W "
+                else:
+                    if piece.color == 0:
+                        output = output+"b "
+                    else:
+                        output = output+"w "
+            output = output+"\n"
+        return output
 
 def main():
     print("Execsute main.py to play.")
+    print()
     return
 
 if __name__ == "__main__":

@@ -5,6 +5,10 @@ from Computer import *
 
 def main():
 
+    option = input("Press c to play against a human player. \nPress h to play against a computer player. \n")
+    while option != "c" and option != "h":
+        option = input("Invalid input. Try again: ")
+
     root = Tk()
     board_size = UI.window_size
     cell_size = int(board_size/8)
@@ -19,8 +23,13 @@ def main():
     canvas =ui.get_canvas()
     canvas.pack()
     canvas.place(x=0,y=0)
-    canvas.bind('<Button-1>',
-        lambda event, b=board, u = ui: UI.onclick_human(event,b,u))
+    if option == "h":
+        canvas.bind('<Button-1>',
+            lambda event, b=board, u = ui: UI.onclick_human(event,b,u))
+    elif option == "c":
+        computer = Computer(board,1)
+        canvas.bind('<Button-1>',
+            lambda event, b=board, c= computer, u = ui: UI.onclick_computer(event,b,c,u))
 
     for i in range(8):
         label = Label(root,
