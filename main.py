@@ -5,7 +5,7 @@ from Computer import *
 
 def main():
 
-    option = input("Press c to play against a human player. \nPress h to play against a computer player. \n")
+    option = input("Press h to play against a human player. \nPress c to play against a computer player. \n")
     while option != "c" and option != "h":
         option = input("Invalid input. Try again: ")
 

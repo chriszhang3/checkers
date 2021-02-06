@@ -1,5 +1,4 @@
 from UI import *
-from Computer import *
 
 class Piece:
     # color is an integer. 0 is black and 1 is white

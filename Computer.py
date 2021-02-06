@@ -2,6 +2,7 @@ from Board import *
 import random
 from tkinter import *
 import copy
+import time
 
 def opposite(color):
     return (color+1)%2
@@ -28,6 +29,97 @@ class Computer:
                 total -= piece_value
         return total
 
+
+    ### SECTION
+    ### The methods in this section implement a computer player that searches
+    ### through various possible moves.
+
+    def search_max(self, board, depth, color, move_list, alpha, beta):
+        value = -self.max_value
+        turn = Turn() # Figure out when I actually need to define this.
+        best_move = None
+
+        # If depth is zero, give the current board value.
+        if depth == 0:
+            value = self.value(board, color)
+            # print(board)
+            # print(value)
+            return (value,turn)
+
+        # If there are no moves, this means the turn is over. Switch to the other player.
+        if not move_list:
+            board.increment_turn()
+            following_moves = board.all_possible_moves()
+            output = self.search_max(board,
+                                        depth-1,
+                                        opposite(color),
+                                        following_moves,
+                                        -beta,
+                                        -alpha)
+            # print("Output",output[0],type(output[0]))
+            output_value = -output[0]
+            return (output_value,turn)
+
+        # Check all possible moves.
+        for move in move_list:
+            case = copy.deepcopy(board)
+            case.move_piece(move)
+
+            if move.eat == True:
+                piece = case.board[move.yend][move.xend]
+                following_moves = case.update_continuation_moves(piece)
+                (output_value,output_turn) = self.search_max(case,
+                                            depth,
+                                            color,
+                                            following_moves,
+                                            alpha,
+                                            beta)
+
+            else:
+                case.increment_turn()
+                following_moves = case.all_possible_moves()
+                output = self.search_max(case,
+                                            depth-1,
+                                            opposite(color),
+                                            following_moves,
+                                            -beta,
+                                            -alpha)
+                # print("Output",output[0],type(output[0]))
+                output_value = -output[0]
+                output_turn = turn
+
+
+            if output_value > value:
+                value = output_value
+                alpha = max(alpha,value)
+                if alpha>beta:
+                    return (self.max_value,None)
+                best_move = move
+                turn = output_turn
+
+        if best_move != None:
+            turn.insert(best_move)
+
+        return (value,turn)
+
+    def search_turn(self,board,ui):
+        move_list = board.all_possible_moves()
+
+        # second input should be even number
+        start_time = time.time()
+        (max,turn) = self.search_max(board,4,1,move_list,-self.max_value,self.max_value)
+        print("max is", max)
+        print(time.time()-start_time)
+        if turn.is_empty():
+            print("You win")
+        else:
+            turn.execute(board,ui,log=True)
+        print("==========")
+        print()
+        board.increment_turn()
+
+    ### The following methods implement a computer player who plays randomly.
+
     def random_move(self,board,move_list):
         if not move_list:
             print("You win.")
@@ -37,79 +129,6 @@ class Computer:
             n = random.randrange(leng)
             move = move_list[n]
             return move
-
-    def search_max(self, board, depth, color, move_list):
-        max = -self.max_value
-        turn = Turn()
-        best_move = None
-
-        if depth == 0:
-            max = self.value(board, color)
-            return (max,turn)
-
-        # If there are no moves, give the current board value.
-        if not move_list:
-            board.increment_turn()
-            following_moves = board.all_possible_moves()
-            (min,turn) = self.search_max(board,
-                                        depth-1,
-                                        opposite(color),
-                                        following_moves)
-            min = -min
-            turn = Turn()
-            return (min,turn)
-
-        for move in move_list:
-            case = copy.deepcopy(board)
-            # print(case)
-            # print(*move_list,sep='\n')
-            # print("chosen move", move)
-            case.move_piece(move)
-
-
-            if move.eat == True:
-                piece = case.board[move.yend][move.xend]
-                following_moves = case.update_continuation_moves(piece)
-                (min,test_turn) = self.search_max(case,
-                                            depth,
-                                            color,
-                                            following_moves)
-            else:
-                case.increment_turn()
-                following_moves = case.all_possible_moves()
-                (min,test_turn) = self.search_max(case,
-                                            depth-1,
-                                            opposite(color),
-                                            following_moves)
-                min = -min
-                test_turn = Turn()
-
-            # print("min = ", min)
-            if min > max:
-                max = min
-                best_move = move
-                turn = test_turn
-
-        if best_move != None:
-            turn.insert(best_move)
-
-        # print("Best move:", move)
-        # print("Turn:", turn)
-        # print("Max:", max, "Color", color)
-        # print(board)
-        return (max,turn)
-
-    def search_turn(self,board,ui):
-        move_list = board.all_possible_moves()
-        (max,turn) = self.search_max(board,4,1,move_list) # second input should be even number
-        print("max is", max)
-        if turn.is_empty():
-            print("You win")
-        else:
-            turn.execute(board,ui,log=True)
-        print("==========")
-        print()
-        board.increment_turn()
 
     def single_move(self,board,ui):
         move_list = board.all_possible_moves()
