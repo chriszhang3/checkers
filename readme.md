@@ -10,7 +10,7 @@ Starting position.
 ![alt text](Checkers-start.png "Title")
 
 It is black's turn. You must take a piece if you are able to.
-![alt text](Checkers.png "Title")
+![alt text](Checkers-middle.png "Title")
 
 Taking a piece and crowning in one move.
-![alt text](checkers1.gif "Title")
+![alt text](Taking.gif "Title")
