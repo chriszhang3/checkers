@@ -1,5 +1,4 @@
-from tkinter import *
-from Board import *
+from tkinter import Canvas, Frame, Tk, BOTH
 
 class UI(Frame):
     window_size = 608
@@ -123,22 +122,3 @@ class UI(Frame):
         else:
             computer.search_turn(board,ui)
 
-
-def main():
-    print("Execute main.py to play.")
-
-    root = UI.start_tk()
-    board = Board()
-    computer = Computer(board,1)
-    ui = UI.make_ui()
-    canvas =ui.get_canvas()
-    canvas.pack()
-
-    canvas.bind('<Button-1>',
-        lambda event, b=board, c=computer, u=ui: UI.onclick_computer(event,b,c,u))
-
-    root.mainloop()
-    return
-
-if __name__ == '__main__':
-    main()

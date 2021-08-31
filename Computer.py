@@ -1,6 +1,5 @@
-from Board import *
+from Board import Board, Turn, UI
 import random
-from tkinter import *
 import copy
 import time
 

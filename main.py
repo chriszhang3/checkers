@@ -1,7 +1,7 @@
-from tkinter import *
-from Board import *
-from UI import *
-from Computer import *
+from tkinter import Tk, Label
+from Board import Board
+from UI import UI
+from Computer import Computer
 
 def main():
 
@@ -26,6 +26,8 @@ def main():
     if option == "h":
         canvas.bind('<Button-1>',
             lambda event, b=board, u = ui: UI.onclick_human(event,b,u))
+
+    # After the human turn, you need to click for the computer's turn to start.
     elif option == "c":
         computer = Computer(board,1)
         canvas.bind('<Button-1>',
@@ -34,8 +36,6 @@ def main():
     for i in range(8):
         label = Label(root,
     		 text=letters[i],
-    		 #fg = "light green",
-    		 #bg = "dark green",
     		 font = "Helvetica %d"%int(cell_size/2))
         label.pack()
         label.place(x = cell_size*i+22, y = board_size+15)
@@ -43,8 +43,6 @@ def main():
     for number in range(8):
         label = Label(root,
              text=str(number+1),
-             #fg = "light green",
-             #bg = "dark green",
              font = "Helvetica %d"%int(cell_size/2))
         label.pack()
         label.place(x = board_size+27, y = 14+number*cell_size)

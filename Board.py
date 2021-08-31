@@ -1,4 +1,5 @@
-from UI import *
+from UI import UI
+from copy import copy
 
 class Piece:
     # color is an integer. 0 is black and 1 is white
@@ -51,7 +52,7 @@ class Move: # change a move to the old move
     @staticmethod
     def print_movelist(moves):
         print("{")
-        for moves in moves:
+        for move in moves:
             print(move)
         print("}")
         return
