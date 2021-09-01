@@ -6,11 +6,13 @@ Execute main.py to play. Both human vs. human and human vs. computer options are
 
 ## Screenshots
 
+Taking a piece and crowning in one move.
+![gif](Taking.gif)
+
 Starting position.
 ![first image](Checkers-start.png)
 
 It is black's turn. You must take a piece if you are able to.
 ![second image](Checkers-middle.png)
 
-Taking a piece and crowning in one move.
-![gif](Taking.gif)
+
